@@ -17,7 +17,7 @@ export default defineConfig({
     }
   },
   base: '/vue_test/', // 设置为相对路径
-  build: {
-    outDir: 'docs'
-  },
+  // build: {
+  //   outDir: 'docs'
+  // },
 })
