@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-### Compile and Minify for Production
+### 编译和缩小以用于生产
 
 ```sh
 npm run build
