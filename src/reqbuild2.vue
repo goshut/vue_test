@@ -224,6 +224,8 @@ export function parsePythonCode(fetchStr) {
 
         // 将其他选项加入到  __headers 中
         __headers = { ...__headers, ...otherOptions };
+        // 添加use-gen
+        __headers["User-Agent"] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
 
         url.value = baseUrl
         params.value = JSON.stringify(__params, null, 4); // 2表示每个缩进的空格数
