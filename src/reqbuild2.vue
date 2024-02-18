@@ -201,7 +201,7 @@ export function parsePythonCode(fetchStr) {
     const __params = Object.fromEntries(new URLSearchParams(queryString));
 
     // 尝试将剩余字符串转换为 JSON
-    const __jsonStrStart = fetchStr.indexOf('{', fetchStr.indexOf('fetch'));
+    const __jsonStrStart = fetchStr.indexOf('{', fetchStr.indexOf('", '));
     const __jsonStrEnd = fetchStr.lastIndexOf('}');
     const __jsonStr = fetchStr.substring(__jsonStrStart, __jsonStrEnd + 1);
 
