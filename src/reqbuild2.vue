@@ -1,6 +1,7 @@
-<script>
-import { ref, computed, reactive } from 'vue'
-// import { showNotification } from "./App.vue"
+<script setup>
+import { ref, computed, reactive, inject } from 'vue'
+const showNotification = inject('showNotification');
+
 const method = ref("GET");
 const url = ref("http://example.com");
 const params = ref("{}");
@@ -9,7 +10,7 @@ const cookies = ref("{}");
 const data = ref("{}");
 const json = ref("{}");
 // const python_file_str = ref("")
-export const pythonFileStr = computed(() => {
+const pythonFileStr = computed(() => {
     // 构建 variable_data 映射
     const variableData = reactive({ params: params.value, headers: headers.value, cookies: cookies.value, data: data.value, json: json.value });
 
@@ -191,7 +192,19 @@ print(response.text)`;
 //         return {};
 //     }
 // }
-export function parsePythonCode(fetchStr) {
+// export default {
+//     setup() {
+//         const showNotification = inject('showNotification')
+//         return { showNotification }
+//     }
+// }
+// showNotification("test0......")
+// const props = defineProps({
+//     showNotification: Function,
+// });
+function parsePythonCode(fetchStr) {
+    //导入测试
+    // showNotification("test......")
     // 提取 URL
     const __urlMatch = fetchStr.match(/fetch\("([^"]+)"\s*,/);
     const __url = __urlMatch ? __urlMatch[1] : '';
@@ -257,21 +270,21 @@ export function parsePythonCode(fetchStr) {
         // }
         // console.log(cookies.value)
         // updateAllAtOnce()
-        // return {
-        //     baseUrl,
-        //     __params,
-        //     __method,
-        //     __headers,
-        //     __cookies,
-        //     __data,
-        //     __json,
-        // };
+        return true;
     } catch (e) {
         // console.error('Error parsing fetch string', e);
-        showNotification("无效字符串" + e)
-        return {};
+        showNotification("无效字符串")
+        console.log(e)
+        return false;
     }
 };
+// 使用 defineExpose 函数，提供一个对象，包含 pythonFileStr 和 parsePythonCode
+defineExpose({
+    pythonFileStr,
+    parsePythonCode,
+})
 </script>
   
-  
+<template>
+
+</template>

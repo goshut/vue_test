@@ -3,11 +3,14 @@ https://eugenkiss.github.io/7guis/tasks/#circle
 -->
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, provide } from 'vue'
 import { getHighlighter } from 'shiki'
 // import test0 from "./test0.vue"
 // import reqbuild from "./reqbuild.vue"
-import { pythonFileStr, parsePythonCode } from "./reqbuild2.vue"
+import reqbuild2 from "./reqbuild2.vue"
+const reqbuild2_export = ref(null)
+// import { pythonFileStr, parsePythonCode } from "./reqbuild2.vue"
+
 // let jj = {};
 // const tt = ref("{}")
 // tt.value = JSON.stringify(jj, null, 4)
@@ -50,6 +53,7 @@ let highlighter = undefined;
 //     app.run(port=9999, host="127.0.0.1", debug=False)`;
 let fetch_str = ""
 let old_fetch_str = ""
+let code_html = ref(null)
 const python_code_html = ref("")
 // const python_code_html = computed(() => {
 //   return highlighter.codeToHtml(pythonFileStr, {
@@ -59,6 +63,17 @@ const python_code_html = ref("")
 // })
 const error_msg = ref('')
 
+
+function timed(fn, ...args) {
+  // 开始测量
+  console.time(`${fn.name}运行时间`);
+  // 调用原始函数
+  const result = fn(...args);
+  // 结束测量
+  console.timeEnd(`${fn.name}运行时间`);
+  // 返回原始函数的结果
+  return result;
+}
 function showNotification(message, duration = 500) {
   const notification = document.createElement('div');
   notification.textContent = message;
@@ -79,6 +94,51 @@ function showNotification(message, duration = 500) {
     notification.style.opacity = '0';
     setTimeout(() => container.removeChild(notification), 500); // 确保淡出动画完成后再移除
   }, duration);
+}
+// 淡隐淡出效果
+// let code_highlight_str_labe = undefined
+const code_block_laber = ref(null)
+function slow_show(_lab, _fun, _slow_time = 0.16, ...args) {
+  Object.assign(_lab.style, {
+    opacity: 0,
+    transition: `opacity ${_slow_time}s`, // 使用模板字符串
+  })
+  setTimeout(() => {
+    _fun(...args)
+    Object.assign(_lab.style, {
+      opacity: 1,
+      transition: `opacity ${_slow_time}s`, // 使用模板字符串
+    });
+  }, _slow_time * 1000); // 延迟 1000 毫秒，也就是 1 秒
+}
+function slow_show_accurate(_lab, _fun_time_slow, _fun_time_fast, _slow_time = 0.16, args1 = [], args2 = []) {
+  Object.assign(_lab.style, {
+    opacity: 0,
+    transition: `opacity ${_slow_time}s`, // 使用模板字符串
+  })
+  // 使用淡出时间粉饰耗时操作
+  _fun_time_slow(...args1)
+  setTimeout(() => {
+    _fun_time_fast(...args2)
+    Object.assign(_lab.style, {
+      opacity: 1,
+      transition: `opacity ${_slow_time}s`, // 使用模板字符串
+    });
+  }, _slow_time * 1000); // 延迟 1000 毫秒，也就是 1 秒
+}
+function get_highlight_html(p_python_code, res_value = Object) {
+  // res_value.value = highlighter.codeToHtml(p_python_code, {
+  //   lang: 'python',
+  //   theme: 'dracula'
+  // })
+  res_value.value = timed(highlighter.codeToHtml,p_python_code, {
+    lang: 'python',
+    theme: 'dracula'
+  })
+  return res_value.value
+}
+function python_code_html_set_value(new_value) {
+  python_code_html.value = new_value.value
 }
 function convertCodeToHtml(p_python_code) {
   python_code_html.value = highlighter.codeToHtml(p_python_code, {
@@ -123,11 +183,15 @@ async function parse() {
     // }
     old_fetch_str = fetch_str; // 更新 old_fetch_str
     // convertCodeToHtml(python_code)
-    parsePythonCode(fetch_str)
-    convertCodeToHtml(pythonFileStr.value)//响应没那么强,次级依赖察觉不到的
+    // if (reqbuild2_export.value.parsePythonCode(fetch_str)) {
+    if (timed(reqbuild2_export.value.parsePythonCode, fetch_str)) {
+      // slow_show(code_block_laber.value, convertCodeToHtml, 0.1, reqbuild2_export.value.pythonFileStr)
+      slow_show_accurate(code_block_laber.value, get_highlight_html, python_code_html_set_value, 0.1, [reqbuild2_export.value.pythonFileStr, code_html], [code_html])
+    }
+    // convertCodeToHtml(pythonFileStr.value)//响应没那么强,次级依赖察觉不到的
     // console.log(pythonFileStr.value)
   } catch (error) {
-    // console.error('Error fetching data:', error);
+    console.error('Error fetching data:', error);
     error_msg.value = '请求失败，请重试';
     showNotification(error_msg.value);
     // console.log(pythonFileStr.value)
@@ -135,7 +199,7 @@ async function parse() {
 };
 function copy() {
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(pythonFileStr.value).then(() => {
+    navigator.clipboard.writeText(reqbuild2_export.value.pythonFileStr).then(() => {
       showNotification('代码已复制到剪贴板'); // 使用自定义通知
     }, () => {
       showNotification('复制失败'); // 使用自定义通知
@@ -143,7 +207,7 @@ function copy() {
   } else {
     // 旧浏览器的备用方案
     const textarea = document.createElement('textarea');
-    textarea.value = text;
+    textarea.value = reqbuild2_export.value.pythonFileStr;
     document.body.appendChild(textarea);
     textarea.select();
     try {
@@ -156,20 +220,28 @@ function copy() {
     document.body.removeChild(textarea);
   }
 };
+
+
+// 使用 provide 函数，提供 showNotification 方法
+provide("showNotification", showNotification)
 onMounted(async () => {
+  // code_highlight_str_labe = document.getElementById("code-highlight-str")
   // 你的异步逻辑
   highlighter = await getHighlighter({
     langs: ['python'],
     themes: ['dracula'],
   });
   // convertCodeToHtml(python_code)
-  convertCodeToHtml(pythonFileStr.value)
+  // convertCodeToHtml(reqbuild2_export.value.pythonFileStr)
+  timed(convertCodeToHtml, reqbuild2_export.value.pythonFileStr)
 });
 </script>
 
 <template>
   <!-- <test0 /> -->
   <!-- <reqbuild /> -->
+  <!-- 传递 a1 给 reqbuild2.vue -->
+  <reqbuild2 ref="reqbuild2_export"></reqbuild2>
   <div id="app">
     <h1>Copilot Demo</h1>
     <!-- <p>在下面的框中输入你想解析的字符串，然后点击提交按钮，Copilot会帮你生成对应的python脚本。</p> -->
@@ -181,7 +253,7 @@ onMounted(async () => {
       <input id="submit-btn" type="button" value="提交" @click="parse">
       <!--<button id="copy-btn" @click="copy">复制代码</button>-->
     </div>
-    <div id="code-block">
+    <div id="code-block" ref="code_block_laber">
       <button id="copy-btn" @click="copy">复制代码</button>
       <code id="code-highlight-str" v-html="python_code_html"></code>
     </div>
@@ -222,6 +294,7 @@ p {
   margin: 10px;
   padding: 5px;
   background-color: green;
+  transition: background-color 0.16s;
   color: white;
   border: none;
   cursor: pointer;
@@ -230,6 +303,7 @@ p {
 
 #submit-btn:hover {
   background-color: lightgreen;
+  /* transition: background-color 0.15s; */
 }
 
 #code-block {
@@ -246,23 +320,28 @@ p {
   right: 26px;
   z-index: 10;
   background-color: #6272A4;
+  /* transition: background-color 5s; */
   /* 与 Shiki 主题颜色协调 */
   color: white;
   border: none;
   cursor: pointer;
   padding: 5px 10px;
   border-radius: 5px;
-  opacity: 0.8;
-  display: none;
-}
-
-#copy-btn:hover {
-  opacity: 1;
+  opacity: 0;
+  transition: opacity 0.16s, background-color 0.16s;
 }
 
 /* 当鼠标悬停在 #code-block 上时显示按钮 */
 #code-block:hover #copy-btn {
-  display: block;
+  opacity: 0.8;
+  /* transition: opacity 1s; */
+}
+
+/* 当鼠标悬停在 #copy-btn 上时显示按钮 */
+#code-block:hover #copy-btn:hover {
+  opacity: 1;
+  /* 这里设置第二次变化的 opacity */
+  background-color: #7588c2;
 }
 
 #code-highlight-str {
