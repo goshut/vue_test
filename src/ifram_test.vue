@@ -1,5 +1,9 @@
 <script setup>
 import { onMounted } from 'vue';
+// 储存测试:通过! 源:  file://
+localStorage.setItem("wind_key", "scrollPosition");
+
+
 console.log(window.location.pathname)
 let iframe = undefined
 function post_mess() {
