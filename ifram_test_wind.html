@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iframe_say_hello</title>
+</head>
+
+<body>
+    <b>
+        iframeiframeiframeiframeiframe
+    </b>
+    <script>
+        // 监听来自父页面的消息
+        window.addEventListener('message', event => {
+            console.log("iframe:")
+            console.log(event.data)
+            console.log(event.origin)
+            console.log(event.source)
+            if (event.data === 'getScrollPosition') {
+                // 获取滚动位置并发送回父页面
+                const scrollPosition = { scrollX: window.scrollX, scrollY: window.scrollY };
+                event.source.postMessage(scrollPosition, event.origin)
+            }
+            else if (event.data === 'test') {
+                alert("iframe_say_hello")
+                // event.origin不知有什么必要写,他必须和event.source绑死...
+                // 方法是你调用的,你不知自己的origin吗?还要手写干嘛...出错用?
+                event.source.postMessage("scrollPosition", "*")
+                // window.postMessage("scrollPosition", "http://localhost:517")
+                // window.top.postMessage("scrollPosition", event.origin)
+            } else {
+                alert("else")
+            };
+
+
+        }, false);
+    </script>
+</body>
+
+</html>
