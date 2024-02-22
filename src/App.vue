@@ -131,7 +131,7 @@ function get_highlight_html(p_python_code, res_value = Object) {
   //   lang: 'python',
   //   theme: 'dracula'
   // })
-  res_value.value = timed(highlighter.codeToHtml,p_python_code, {
+  res_value.value = timed(highlighter.codeToHtml, p_python_code, {
     lang: 'python',
     theme: 'dracula'
   })
@@ -242,33 +242,26 @@ onMounted(async () => {
   <!-- <reqbuild /> -->
   <!-- 传递 a1 给 reqbuild2.vue -->
   <reqbuild2 ref="reqbuild2_export"></reqbuild2>
-  <div id="app">
-    <h1>Copilot Demo</h1>
-    <!-- <p>在下面的框中输入你想解析的字符串，然后点击提交按钮，Copilot会帮你生成对应的python脚本。</p> -->
-    <form id="fetch-form">
-      <textarea id="fetch-str" name="fetch_str" rows="10" cols="80"
-        placeholder="在下面的框中输入你想解析的字符串，然后点击提交按钮，Copilot会帮你生成对应的 Python 脚本。" v-model="fetch_str"></textarea>
-    </form>
-    <div id="buttons-container">
-      <input id="submit-btn" type="button" value="提交" @click="parse">
-      <!--<button id="copy-btn" @click="copy">复制代码</button>-->
-    </div>
-    <div id="code-block" ref="code_block_laber">
-      <button id="copy-btn" @click="copy">复制代码</button>
-      <code id="code-highlight-str" v-html="python_code_html"></code>
-    </div>
-    <div id="notification-container"></div>
+  <!-- <div id="app"> -->
+  <h1>Copilot Demo</h1>
+  <!-- <p>在下面的框中输入你想解析的字符串，然后点击提交按钮，Copilot会帮你生成对应的python脚本。</p> -->
+  <form id="fetch-form">
+    <textarea id="fetch-str" name="fetch_str" rows="10" cols="80"
+      placeholder="在下面的框中输入你想解析的字符串，然后点击提交按钮，Copilot会帮你生成对应的 Python 脚本。" v-model="fetch_str"></textarea>
+  </form>
+  <div id="buttons-container">
+    <input id="submit-btn" type="button" value="提交" @click="parse">
+    <!--<button id="copy-btn" @click="copy">复制代码</button>-->
   </div>
+  <div id="code-block" ref="code_block_laber">
+    <button id="copy-btn" @click="copy">复制代码</button>
+    <code id="code-highlight-str" v-html="python_code_html"></code>
+  </div>
+  <div id="notification-container"></div>
+  <!-- </div> -->
 </template>
 
 <style>
-#app {
-  /*text-align: center;*/
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
 h1 {
   text-align: center;
   color: blue;

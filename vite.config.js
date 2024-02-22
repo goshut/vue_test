@@ -20,7 +20,8 @@ export default defineConfig({
   base: './', // 设置为相对路径
   // base: '/vue_test/', // 设置为相对路径
   build: {
-    outDir: 'ifram_test',
+    // outDir: 'ifram_test',
+    outDir: 'python_req_test',
     // target: 'esnext',
   },
 })
