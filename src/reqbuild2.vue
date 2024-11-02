@@ -32,11 +32,17 @@ const pythonFileStr = computed(() => {
 
     // 最终的 Python 文件字符串
     return `import requests
+from pprint import pprint
 
 method = "${method.value}"
 url = "${url.value}"
 ${variableDefinitions}response = requests.request(method, url${requestParams})
-print(response.text)`;
+try:
+    pprint(response.json())
+except requests.exceptions.JSONDecodeError:
+    print(response.text)
+except Exception as e:
+    print(e)`;
 });
 // function preprocessStr(str) {
 //     // 替换所有的 \" 为 \\"，以确保 JSON 解析时转义字符被正确处理
